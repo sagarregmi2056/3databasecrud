@@ -1,0 +1,46 @@
+const express = require('express');
+const mongoose = require('mongoose');
+const app = express();
+
+// Creating connection to the databases
+const db1 = mongoose.createConnection("mongodb://localhost:27017/databaseone");
+const db2 = mongoose.createConnection("mongodb://localhost:27017/database2");
+
+// Defining schema and model for admin in db1
+const AdminSchema = new mongoose.Schema({
+    name: String,
+    password: String
+});
+const Admin = db1.model("admins", AdminSchema);
+
+// Defining schema and model for users in db2
+const UserSchema = new mongoose.Schema({
+    name: String,
+    password: String
+});
+const User = db2.model("users", UserSchema);
+
+// Handling route
+app.get('/', async (req, res) => {
+    try {
+        // Creating an admin in db1
+        const admin = await Admin.create({ name: 'AdminName', password: 'AdminPassword' });
+
+        // Creating a user in db2
+        const user = await User.create({ name: 'UserName', password: 'UserPassword' });
+
+        if (admin && user) {
+            res.send('success');
+        } else {
+            res.send('failed');
+        }
+    } catch (error) {
+        console.error(error);
+        res.send('error');
+    }
+});
+
+// Starting the server
+app.listen('5050', () => {
+    console.log('server started at port 5050');
+});
